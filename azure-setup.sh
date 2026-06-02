@@ -6,9 +6,9 @@
 # =============================================================
 
 # ---- Valores desplegados (NO cambiar salvo recrear infraestructura) ----
-RESOURCE_GROUP="rg-plataforma-arrendamientos"
-LOCATION="westus3"                  # eastus no soporta PG; westus3 sí
-PG_SERVER="pgprop-53383"            # nombre global único generado
+RESOURCE_GROUP="JosephResourceGroup"
+LOCATION="eastus"
+PG_SERVER="ms-propiedades-53383"            # nombre global único generado
 PG_ADMIN="pgadmin"
 PG_PASSWORD="Arr3nd@Xpwu18Ml!"     # guardar en lugar seguro
 PG_DB="propiedades_db"
