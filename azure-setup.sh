@@ -69,7 +69,7 @@ az webapp config appsettings set \
   --resource-group $RESOURCE_GROUP \
   --settings \
     DATABASE_URL="$DATABASE_URL" \
-    ALLOWED_ORIGINS="http://localhost:5173,https://plataforma-arrendamientos.azurestaticapps.net" \
+    ALLOWED_ORIGINS="http://localhost:5173,https://agreeable-ground-0b1436910.6.azurestaticapps.net" \
     SCM_DO_BUILD_DURING_DEPLOYMENT=true
 
 echo ">>> Configurando startup command..."
