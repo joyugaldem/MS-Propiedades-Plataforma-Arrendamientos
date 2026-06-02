@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(winget install Microsoft.AzureCLI)",
+      "PowerShell(winget install Microsoft.AzureCLI --accept-source-agreements --accept-package-agreements)",
+      "Bash(az account *)",
+      "PowerShell(az account show --query \"{nombre:name, subscripcion:id, estado:state}\" -o table 2>&1)",
+      "PowerShell(winget install Microsoft.AzureCLI --accept-package-agreements --accept-source-agreements 2>&1)",
+      "PowerShell(Get-ChildItem \"C:\\\\deploy_tmp\\\\logs2\\\\LogFiles\" -Recurse | Where-Object { -not $_.PSIsContainer } | Sort-Object LastWriteTime -Descending | Select-Object -First 8 | Format-Table FullName, LastWriteTime, Length)",
+      "Read(//c/deploy_tmp/logs2/LogFiles/**)"
+    ]
+  }
+}
