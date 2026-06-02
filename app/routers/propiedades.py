@@ -26,6 +26,7 @@ async def listar_propiedades(
     tipo: str | None = Query(None),
     precioMin: float | None = Query(None, ge=0),
     precioMax: float | None = Query(None, ge=0),
+    duenoId: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Propiedad)
@@ -48,6 +49,8 @@ async def listar_propiedades(
         query = query.where(Propiedad.precio >= precioMin)
     if precioMax is not None:
         query = query.where(Propiedad.precio <= precioMax)
+    if duenoId:
+        query = query.where(Propiedad.id_dueno == duenoId)
 
     count_result = await db.execute(select(func.count()).select_from(query.subquery()))
     total = count_result.scalar_one()

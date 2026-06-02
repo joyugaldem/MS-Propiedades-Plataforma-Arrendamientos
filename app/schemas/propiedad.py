@@ -50,6 +50,7 @@ class PropiedadUpdate(BaseModel):
     tipo: TipoPropiedad | None = None
     estado: EstadoPropiedad | None = None
     imagenes: list[str] | None = None
+    idDueno: str | None = None
     amenidades: list[str] | None = None
 
 
