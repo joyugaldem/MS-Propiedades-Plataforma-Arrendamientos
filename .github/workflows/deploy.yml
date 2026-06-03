@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -30,3 +31,8 @@ jobs:
           app-name: ms-propiedades
           resource-group-name: JosephResourceGroup
           package: .
+
+      - name: Smoke test
+        run: |
+          sleep 30
+          curl -f https://ms-propiedades.azurewebsites.net/health

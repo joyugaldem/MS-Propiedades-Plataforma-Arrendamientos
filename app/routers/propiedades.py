@@ -31,7 +31,11 @@ async def listar_propiedades(
 ):
     query = select(Propiedad)
 
+    if precioMin is not None and precioMax is not None and precioMin > precioMax:
+        raise HTTPException(status_code=400, detail="precioMin no puede ser mayor que precioMax")
+
     if search:
+        search = search[:200]
         term = f"%{search}%"
         query = query.where(
             or_(
@@ -89,24 +93,14 @@ async def crear_propiedad(
         id_dueno=body.idDueno,
         amenidades=body.amenidades,
     )
-    db.add(propiedad)
-    await db.commit()
-    await db.refresh(propiedad)
+    try:
+        db.add(propiedad)
+        await db.commit()
+        await db.refresh(propiedad)
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Error al guardar la propiedad")
     return PropiedadResponse.from_orm(propiedad)
-
-
-@router.get("/dueno/{dueno_id}", response_model=list[PropiedadResponse])
-async def propiedades_por_dueno(
-    dueno_id: str,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(
-        select(Propiedad)
-        .where(Propiedad.id_dueno == dueno_id)
-        .order_by(Propiedad.fecha_creacion.desc())
-    )
-    propiedades = result.scalars().all()
-    return [PropiedadResponse.from_orm(p) for p in propiedades]
 
 
 @router.get("/{propiedad_id}", response_model=PropiedadResponse)
@@ -144,8 +138,12 @@ async def actualizar_propiedad(
         db_key = field_map.get(key, key)
         setattr(propiedad, db_key, value)
 
-    await db.commit()
-    await db.refresh(propiedad)
+    try:
+        await db.commit()
+        await db.refresh(propiedad)
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Error al actualizar la propiedad")
     return PropiedadResponse.from_orm(propiedad)
 
 
@@ -161,5 +159,9 @@ async def eliminar_propiedad(
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
 
-    await db.delete(propiedad)
-    await db.commit()
+    try:
+        await db.delete(propiedad)
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Error al eliminar la propiedad")
