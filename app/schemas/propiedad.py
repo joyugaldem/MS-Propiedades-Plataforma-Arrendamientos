@@ -27,7 +27,7 @@ class Moneda(str, Enum):
 
 class PropiedadCreate(BaseModel):
     titulo: str = Field(min_length=3, max_length=200, description="Título descriptivo de la propiedad")
-    descripcion: str = Field(min_length=10, description="Descripción detallada de la propiedad")
+    descripcion: str = Field(min_length=10, max_length=2000, description="Descripción detallada de la propiedad")
     precio: Decimal = Field(gt=0, description="Precio mensual de arrendamiento")
     moneda: Moneda = Field(description="Moneda del precio: CRC o USD")
     provincia: str = Field(description="Provincia de Costa Rica")
@@ -36,13 +36,13 @@ class PropiedadCreate(BaseModel):
     tipo: TipoPropiedad = Field(description="Tipo de propiedad")
     estado: EstadoPropiedad = Field(default=EstadoPropiedad.disponible, description="Estado actual de la propiedad")
     imagenes: list[str] = Field(default=[], description="URLs de imágenes de la propiedad")
-    idDueno: str = Field(description="ID del usuario propietario")
+    idDueno: UUID = Field(description="ID UUID del usuario propietario")
     amenidades: list[str] = Field(default=[], description="Lista de amenidades disponibles")
 
 
 class PropiedadUpdate(BaseModel):
     titulo: str | None = Field(default=None, min_length=3, max_length=200)
-    descripcion: str | None = Field(default=None, min_length=10)
+    descripcion: str | None = Field(default=None, min_length=10, max_length=2000)
     precio: Decimal | None = Field(default=None, gt=0)
     moneda: Moneda | None = None
     provincia: str | None = None
@@ -51,7 +51,7 @@ class PropiedadUpdate(BaseModel):
     tipo: TipoPropiedad | None = None
     estado: EstadoPropiedad | None = None
     imagenes: list[str] | None = None
-    idDueno: str | None = None
+    idDueno: UUID | None = None
     amenidades: list[str] | None = None
 
 

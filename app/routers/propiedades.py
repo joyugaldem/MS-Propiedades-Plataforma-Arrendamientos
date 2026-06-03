@@ -1,4 +1,5 @@
 import math
+from decimal import Decimal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -24,8 +25,9 @@ async def listar_propiedades(
     search: str | None = Query(None),
     provincia: str | None = Query(None),
     tipo: str | None = Query(None),
-    precioMin: float | None = Query(None, ge=0),
-    precioMax: float | None = Query(None, ge=0),
+    estado: str | None = Query(None),
+    precioMin: Decimal | None = Query(None, ge=0),
+    precioMax: Decimal | None = Query(None, ge=0),
     duenoId: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -35,20 +37,22 @@ async def listar_propiedades(
         raise HTTPException(status_code=400, detail="precioMin no puede ser mayor que precioMax")
 
     if search:
-        search = search[:200]
-        term = f"%{search}%"
+        safe = search[:200].replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        term = f"%{safe}%"
         query = query.where(
             or_(
-                Propiedad.titulo.ilike(term),
-                Propiedad.provincia.ilike(term),
-                Propiedad.canton.ilike(term),
-                Propiedad.distrito.ilike(term),
+                Propiedad.titulo.ilike(term, escape="\\"),
+                Propiedad.provincia.ilike(term, escape="\\"),
+                Propiedad.canton.ilike(term, escape="\\"),
+                Propiedad.distrito.ilike(term, escape="\\"),
             )
         )
     if provincia:
         query = query.where(Propiedad.provincia == provincia)
     if tipo:
         query = query.where(Propiedad.tipo == tipo)
+    if estado:
+        query = query.where(Propiedad.estado == estado)
     if precioMin is not None:
         query = query.where(Propiedad.precio >= precioMin)
     if precioMax is not None:
@@ -90,7 +94,7 @@ async def crear_propiedad(
         tipo=body.tipo,
         estado=body.estado,
         imagenes=body.imagenes,
-        id_dueno=body.idDueno,
+        id_dueno=str(body.idDueno),
         amenidades=body.amenidades,
     )
     try:
@@ -136,6 +140,8 @@ async def actualizar_propiedad(
     }
     for key, value in updates.items():
         db_key = field_map.get(key, key)
+        if db_key == "id_dueno" and value is not None:
+            value = str(value)
         setattr(propiedad, db_key, value)
 
     try:

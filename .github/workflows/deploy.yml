@@ -32,6 +32,11 @@ jobs:
           resource-group-name: JosephResourceGroup
           package: .
 
+      - name: Run DB migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: alembic upgrade head
+
       - name: Smoke test
         run: |
           sleep 30

@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app.config import settings
 from app.database import Base, engine
@@ -40,4 +42,13 @@ app.include_router(propiedades_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    try:
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        return {"status": "ok", "db": "ok"}
+    except Exception as exc:
+        logger.error("Health check DB failure: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={"status": "degraded", "db": "unreachable"},
+        )
