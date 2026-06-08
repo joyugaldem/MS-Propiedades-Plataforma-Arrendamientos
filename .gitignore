@@ -10,3 +10,6 @@ vendor/
 *.egg-info/
 dist/
 build/
+node_modules/
+package-lock.json
+*.zip
