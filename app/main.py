@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.config import settings
-from app.database import Base, engine
+from app.database import engine
 from app.routers.propiedades import router as propiedades_router
 
 logger = logging.getLogger(__name__)
@@ -17,9 +17,10 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.execute(text("SELECT 1"))
+        logger.info("DB connection verified at startup")
     except Exception as exc:
-        logger.warning("DB not reachable at startup: %s — app will retry on first request", exc)
+        logger.warning("DB not reachable at startup: %s — will retry on first request", exc)
     yield
 
 

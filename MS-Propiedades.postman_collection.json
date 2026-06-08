@@ -1,0 +1,337 @@
+{
+  "info": {
+    "_postman_id": "ms-propiedades-v1",
+    "name": "MS Propiedades - Plataforma Arrendamientos",
+    "description": "Coleccion completa del microservicio de propiedades. Usa la variable BASE_URL del entorno activo para apuntar al servicio correcto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://ms-propiedades.azurewebsites.net",
+      "type": "string",
+      "description": "URL base del servicio. Sobrescrita por la variable del entorno activo en Postman."
+    },
+    {
+      "key": "subscriptionKey",
+      "value": "",
+      "type": "string",
+      "description": "Ocp-Apim-Subscription-Key requerida cuando se accede a traves del API Management."
+    },
+    {
+      "key": "propiedadId",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "string",
+      "description": "UUID de la propiedad. Se actualiza automaticamente al ejecutar el POST de creacion."
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica que el servicio y la conexion a la base de datos esten activos."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"status\": \"ok\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Propiedades",
+      "item": [
+        {
+          "name": "GET /propiedades - Listar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/propiedades?page=1&limit=6",
+              "host": ["{{BASE_URL}}"],
+              "path": ["propiedades"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Numero de pagina (default: 1, minimo: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "6",
+                  "description": "Items por pagina (default: 6, maximo: 100)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Texto libre - busca en titulo, provincia, canton, distrito",
+                  "disabled": true
+                },
+                {
+                  "key": "provincia",
+                  "value": "",
+                  "description": "Filtrar por provincia (ej: San Jose)",
+                  "disabled": true
+                },
+                {
+                  "key": "tipo",
+                  "value": "",
+                  "description": "Filtrar por tipo: casa | apartamento | local | bodega | oficina",
+                  "disabled": true
+                },
+                {
+                  "key": "estado",
+                  "value": "",
+                  "description": "Filtrar por estado: disponible | alquilada | mantenimiento",
+                  "disabled": true
+                },
+                {
+                  "key": "precioMin",
+                  "value": "",
+                  "description": "Precio minimo (>= 0)",
+                  "disabled": true
+                },
+                {
+                  "key": "precioMax",
+                  "value": "",
+                  "description": "Precio maximo (>= 0)",
+                  "disabled": true
+                },
+                {
+                  "key": "duenoId",
+                  "value": "",
+                  "description": "UUID del dueno para filtrar sus propiedades",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Devuelve la lista paginada de propiedades. Todos los filtros son opcionales y combinables."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"data\": [\n    {\n      \"idPropiedad\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"titulo\": \"Apartamento centrico en San Jose\",\n      \"descripcion\": \"Bonito apartamento con vista al parque, cocina equipada y parqueo.\",\n      \"precio\": \"350000.00\",\n      \"moneda\": \"CRC\",\n      \"provincia\": \"San Jose\",\n      \"canton\": \"San Jose\",\n      \"distrito\": \"Carmen\",\n      \"tipo\": \"apartamento\",\n      \"estado\": \"disponible\",\n      \"imagenes\": [\"https://cdn.example.com/img1.jpg\"],\n      \"idDueno\": \"auth0|abc123\",\n      \"amenidades\": [\"parqueo\", \"internet\"],\n      \"fechaCreacion\": \"2025-01-15T10:30:00Z\",\n      \"fechaActualizacion\": null\n    }\n  ],\n  \"total\": 1,\n  \"page\": 1,\n  \"pageSize\": 6,\n  \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /propiedades - Crear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('propiedadId', json.idPropiedad);",
+                  "    console.log('propiedadId guardado:', json.idPropiedad);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Casa con jardin en Escazu\",\n  \"descripcion\": \"Amplia casa de dos plantas con jardin y piscina privada en residencial cerrado.\",\n  \"precio\": 1200.00,\n  \"moneda\": \"USD\",\n  \"provincia\": \"San Jose\",\n  \"canton\": \"Escazu\",\n  \"distrito\": \"Escazu\",\n  \"tipo\": \"casa\",\n  \"estado\": \"disponible\",\n  \"imagenes\": [\n    \"https://cdn.example.com/casa1.jpg\",\n    \"https://cdn.example.com/casa2.jpg\"\n  ],\n  \"idDueno\": \"00000000-0000-0000-0000-000000000001\",\n  \"amenidades\": [\"piscina\", \"jardin\", \"parqueo\", \"seguridad 24h\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/propiedades",
+              "host": ["{{BASE_URL}}"],
+              "path": ["propiedades"]
+            },
+            "description": "Crea una nueva propiedad. Devuelve 201 con el objeto creado.\n\nCampos requeridos: titulo, descripcion, precio, moneda, provincia, canton, distrito, tipo, idDueno\n\nEnums:\n- moneda: CRC | USD\n- tipo: casa | apartamento | local | bodega | oficina\n- estado: disponible | alquilada | mantenimiento (default: disponible)\n\nEl script de test guarda el idPropiedad devuelto en {{propiedadId}} automaticamente."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"idPropiedad\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"titulo\": \"Casa con jardin en Escazu\",\n  \"descripcion\": \"Amplia casa de dos plantas con jardin y piscina privada en residencial cerrado.\",\n  \"precio\": \"1200.00\",\n  \"moneda\": \"USD\",\n  \"provincia\": \"San Jose\",\n  \"canton\": \"Escazu\",\n  \"distrito\": \"Escazu\",\n  \"tipo\": \"casa\",\n  \"estado\": \"disponible\",\n  \"imagenes\": [\"https://cdn.example.com/casa1.jpg\", \"https://cdn.example.com/casa2.jpg\"],\n  \"idDueno\": \"00000000-0000-0000-0000-000000000001\",\n  \"amenidades\": [\"piscina\", \"jardin\", \"parqueo\", \"seguridad 24h\"],\n  \"fechaCreacion\": \"2025-01-15T10:30:00Z\",\n  \"fechaActualizacion\": null\n}"
+            },
+            {
+              "name": "422 Unprocessable Entity",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"detail\": [\n    {\n      \"type\": \"missing\",\n      \"loc\": [\"body\", \"titulo\"],\n      \"msg\": \"Field required\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /propiedades/{id} - Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/propiedades/{{propiedadId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["propiedades", "{{propiedadId}}"]
+            },
+            "description": "Obtiene una propiedad especifica por su UUID. El valor de {{propiedadId}} se actualiza automaticamente al ejecutar el POST de creacion."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"idPropiedad\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"titulo\": \"Casa con jardin en Escazu\",\n  \"descripcion\": \"Amplia casa de dos plantas con jardin y piscina privada en residencial cerrado.\",\n  \"precio\": \"1200.00\",\n  \"moneda\": \"USD\",\n  \"provincia\": \"San Jose\",\n  \"canton\": \"Escazu\",\n  \"distrito\": \"Escazu\",\n  \"tipo\": \"casa\",\n  \"estado\": \"disponible\",\n  \"imagenes\": [\"https://cdn.example.com/casa1.jpg\"],\n  \"idDueno\": \"00000000-0000-0000-0000-000000000001\",\n  \"amenidades\": [\"piscina\", \"jardin\"],\n  \"fechaCreacion\": \"2025-01-15T10:30:00Z\",\n  \"fechaActualizacion\": null\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"detail\": \"Propiedad no encontrada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "PUT /propiedades/{id} - Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Casa con jardin en Escazu - actualizada\",\n  \"precio\": 1350.00,\n  \"estado\": \"disponible\",\n  \"amenidades\": [\"piscina\", \"jardin\", \"parqueo\", \"seguridad 24h\", \"gimnasio\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/propiedades/{{propiedadId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["propiedades", "{{propiedadId}}"]
+            },
+            "description": "Actualiza una propiedad existente. Todos los campos son opcionales - envia solo los que quieras modificar.\n\nCampos opcionales: titulo, descripcion, precio, moneda, provincia, canton, distrito, tipo, estado, imagenes (reemplaza la lista completa), idDueno, amenidades"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"idPropiedad\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"titulo\": \"Casa con jardin en Escazu - actualizada\",\n  \"descripcion\": \"Amplia casa de dos plantas con jardin y piscina privada en residencial cerrado.\",\n  \"precio\": \"1350.00\",\n  \"moneda\": \"USD\",\n  \"provincia\": \"San Jose\",\n  \"canton\": \"Escazu\",\n  \"distrito\": \"Escazu\",\n  \"tipo\": \"casa\",\n  \"estado\": \"disponible\",\n  \"imagenes\": [\"https://cdn.example.com/casa1.jpg\"],\n  \"idDueno\": \"00000000-0000-0000-0000-000000000001\",\n  \"amenidades\": [\"piscina\", \"jardin\", \"parqueo\", \"seguridad 24h\", \"gimnasio\"],\n  \"fechaCreacion\": \"2025-01-15T10:30:00Z\",\n  \"fechaActualizacion\": \"2025-01-16T08:00:00Z\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"detail\": \"Propiedad no encontrada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE /propiedades/{id} - Eliminar",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Ocp-Apim-Subscription-Key",
+                "value": "{{subscriptionKey}}",
+                "description": "Requerido solo via APIM",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/propiedades/{{propiedadId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["propiedades", "{{propiedadId}}"]
+            },
+            "description": "Elimina una propiedad por UUID. Devuelve 204 sin cuerpo si tiene exito."
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "header": [],
+              "body": ""
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{"key": "Content-Type", "value": "application/json"}],
+              "body": "{\n  \"detail\": \"Propiedad no encontrada\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
