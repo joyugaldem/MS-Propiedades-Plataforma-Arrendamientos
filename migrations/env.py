@@ -10,8 +10,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from app.models.propiedad import Propiedad  # noqa: E402, F401
-from app.database import Base  # noqa: E402
+from app.models.propiedad import Propiedad  # noqa: E402, F401  registers model with metadata
+from app.base import Base  # noqa: E402  import Base after models so metadata is populated
 
 target_metadata = Base.metadata
 

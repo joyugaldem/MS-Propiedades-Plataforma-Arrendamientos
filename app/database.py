@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
 
+from app.base import Base  # noqa: F401  re-exported for backwards compat
 from app.config import settings
 
 engine = create_async_engine(
@@ -11,10 +11,6 @@ engine = create_async_engine(
     pool_pre_ping=True,
 )
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 async def get_db() -> AsyncSession:
